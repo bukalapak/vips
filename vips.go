@@ -330,7 +330,7 @@ func Resize(buf []byte, o Options) ([]byte, error) {
 	if o.Format == "webp" {
 		C.vips_webpsave_custom(image, &ptr, &length, C.int(o.Quality))
 	} else {
-		C.vips_jpegsave_custom(image, &ptr, &length, 1, C.int(o.Quality), 0)
+		C.vips_jpegsave_custom(image, &ptr, &length, 1, C.int(o.Quality), 1)
 	}
 	C.g_object_unref(C.gpointer(image))
 
