@@ -19,6 +19,7 @@ import (
 const DEBUG = false
 
 const (
+	GIF_MIME  = "image/gif"
 	JPEG_MIME = "image/jpeg"
 	WEBP_MIME = "image/webp"
 	PNG_MIME  = "image/png"
@@ -28,6 +29,7 @@ type ImageType int
 
 const (
 	UNKNOWN ImageType = iota
+	GIF
 	JPEG
 	WEBP
 	PNG
@@ -117,12 +119,15 @@ func Resize(buf []byte, o Options) ([]byte, error) {
 	// detect (if possible) the file type
 	typ := UNKNOWN
 	switch {
+	case http.DetectContentType(buf) == GIF_MIME:
+		typ = GIF
 	case http.DetectContentType(buf) == JPEG_MIME:
 		typ = JPEG
 	case http.DetectContentType(buf) == WEBP_MIME:
 		typ = WEBP
 	case http.DetectContentType(buf) == PNG_MIME:
 		typ = PNG
+
 	default:
 		return nil, errors.New("unknown image format")
 	}
@@ -135,6 +140,8 @@ func Resize(buf []byte, o Options) ([]byte, error) {
 	imageBuf := unsafe.Pointer(&buf[0])
 
 	switch typ {
+	case GIF:
+		C.vips_gifload_buffer_seq(imageBuf, imageLength, &image)
 	case JPEG:
 		C.vips_jpegload_buffer_seq(imageBuf, imageLength, &image)
 	case WEBP:
